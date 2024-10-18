@@ -17,6 +17,16 @@ public class UserMapper {
     }
 
     public static UserResponseDto toDto(User user) {
-        return new ModelMapper().map(user, UserResponseDto.class);
+        String role = user.getRole().name().substring("ROLE_".length());
+        ModelMapper mapperMain = new ModelMapper();
+        TypeMap<User, UserResponseDto> propertyMapper = mapperMain.createTypeMap(User.class, UserResponseDto.class);
+        propertyMapper.addMappings(
+                mapper -> mapper.map(src -> role, UserResponseDto::setRole)
+        );
+        return mapperMain.map(user, UserResponseDto.class);
+    }
+
+    public static List<UserResponseDto> toListDto(List<User> users){
+        return users.stream().map(user -> toDto(user)).collect(Collectors.toList());
     }
 }
