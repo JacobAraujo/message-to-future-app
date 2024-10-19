@@ -1,9 +1,6 @@
 package com.jacob_araujo.message_to_future_api.web.exception;
 
-import com.jacob_araujo.message_to_future_api.exception.CpfUniqueViolationException;
-import com.jacob_araujo.message_to_future_api.exception.InvalidPasswordException;
-import com.jacob_araujo.message_to_future_api.exception.UsernameUniqueViolationException;
-import com.jacob_araujo.message_to_future_api.exception.EntityNotFoundException;
+import com.jacob_araujo.message_to_future_api.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -42,7 +39,7 @@ public class ApiExceptionHandler {
 
     }
 
-    @ExceptionHandler({UsernameUniqueViolationException.class, CpfUniqueViolationException.class})
+    @ExceptionHandler({UsernameUniqueViolationException.class, CpfUniqueViolationException.class, RecipientAndDataUniqueViolationException.class})
     public ResponseEntity<ErrorMessage> usernameUniqueViolationException(RuntimeException ex,
                                                                         HttpServletRequest request){
         log.error("Api Error -", ex);
