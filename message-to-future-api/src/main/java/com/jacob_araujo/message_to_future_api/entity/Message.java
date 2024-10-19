@@ -44,7 +44,7 @@ public class Message implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 25)
-    private StatusMessage status = StatusMessage.PENDING;
+    private StatusMessage statusMessage = StatusMessage.PENDING;
 
     @CreatedDate
     @Column(name = "creation_date")

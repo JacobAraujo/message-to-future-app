@@ -35,11 +35,11 @@ public class MessageMapper {
 
 
     public static MessageResponseDto toDto(Message message) {
-        String status = message.getStatus().name();
+        String status = message.getStatusMessage().name();
         ModelMapper mapperMain = new ModelMapper();
         TypeMap<Message, MessageResponseDto> propertyMapper = mapperMain.createTypeMap(Message.class, MessageResponseDto.class);
         propertyMapper.addMappings(
-                mapper -> mapper.map(src -> status, MessageResponseDto::setStatus)
+                mapper -> mapper.map(src -> status, MessageResponseDto::setStatusMessage)
         );
         return mapperMain.map(message, MessageResponseDto.class);
     }

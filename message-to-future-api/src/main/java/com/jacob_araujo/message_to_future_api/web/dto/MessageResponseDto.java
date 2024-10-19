@@ -15,10 +15,10 @@ public class MessageResponseDto {
     private Long id;
     private Long senderUserId;
     private String messageText;
-    private String openingDateTime;
+    private LocalDateTime openingDateTime;
     private String senderUser;
     private String narrativeTheme;
     private String recipientName;
     private LocalDateTime creationDate;
-    private String status;
+    private String statusMessage;
 }
