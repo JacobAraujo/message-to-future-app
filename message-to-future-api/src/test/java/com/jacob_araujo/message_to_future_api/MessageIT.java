@@ -2,6 +2,7 @@ package com.jacob_araujo.message_to_future_api;
 
 import com.jacob_araujo.message_to_future_api.web.dto.MessageCreateDto;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageResponseDto;
+import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,4 +41,67 @@ public class MessageIT {
         org.assertj.core.api.Assertions.assertThat(responseBody.getStatusMessage()).isEqualTo("PENDING");
 
     }
+
+    @Test
+    public void createMessage_recipientAndDateAlreadyRegistered_returnErrorMessage409(){
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("/api/v1/messages")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .bodyValue(new MessageCreateDto("Oi", "Bob", "10/10/2025 10:00:00", "Rocket"))
+                .exchange()
+                .expectStatus().isEqualTo(409)
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(409);
+    }
+
+    @Test
+    public void createMessage_invalidData_returnErrorMessage422(){
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("/api/v1/messages")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .bodyValue(new MessageCreateDto("Oi", "", "10/10/2025 10:00:00", "Rocket"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient
+                .post()
+                .uri("/api/v1/messages")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .bodyValue(new MessageCreateDto("Oi", "Bob", "", "Rocket"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient
+                .post()
+                .uri("/api/v1/messages")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .bodyValue(new MessageCreateDto("", "Bob", "", "Rocket"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+    }
+
 }

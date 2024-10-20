@@ -33,6 +33,8 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode="201", description="Recurso criado com sucesso",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Token bearer inválido",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "409", description = "Email já cadastrado no sistema",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "422", description = "Recurso não processado por dados de entrada inválidos",

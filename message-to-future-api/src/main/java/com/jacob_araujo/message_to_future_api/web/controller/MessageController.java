@@ -1,12 +1,15 @@
 package com.jacob_araujo.message_to_future_api.web.controller;
 
 import com.jacob_araujo.message_to_future_api.entity.Message;
+import com.jacob_araujo.message_to_future_api.entity.User;
 import com.jacob_araujo.message_to_future_api.jwt.JwtUserDetails;
 import com.jacob_araujo.message_to_future_api.service.MessageService;
 import com.jacob_araujo.message_to_future_api.service.UserService;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageCreateDto;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageResponseDto;
+import com.jacob_araujo.message_to_future_api.web.dto.UserResponseDto;
 import com.jacob_araujo.message_to_future_api.web.dto.mapper.MessageMapper;
+import com.jacob_araujo.message_to_future_api.web.dto.mapper.UserMapper;
 import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,11 +20,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Tag(name= "Mensagens", description = "Contém todas operações relativas aos recursos para cadastro, edição e leitura de mensagens")
@@ -49,5 +52,30 @@ public class MessageController {
         message.setSenderUser(userService.searchById(userDetails.getId()));
         Message messageCreated = messageService.save(message);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageMapper.toDto(messageCreated));
+    }
+
+    @Operation(summary = "Recuperar uma mensagem pelo id",
+            responses = {
+                    @ApiResponse(responseCode="200", description="Recurso recuperado com sucesso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') OR ( hasRole('CLIENT') AND #id == authentication.principal.getId )")
+    public ResponseEntity<MessageResponseDto> getById (@PathVariable Long id){
+        Message message = messageService.searchById(id);
+        return ResponseEntity.ok(MessageMapper.toDto(message));
+    }
+
+    @Operation(summary = "Usuários recuperados com sucesso",
+            responses = {
+                    @ApiResponse(responseCode="200", description="Recuso recuperado com sucesso com sucesso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto[].class)))
+            })
+    @GetMapping()
+    public ResponseEntity<List<MessageResponseDto>> getAllMessagesFromOneUser (@AuthenticationPrincipal JwtUserDetails userDetails){
+        List<Message> messages = messageService.searchAllMessagesFromOneUser(userDetails.getId());
+        return ResponseEntity.ok(MessageMapper.toListDto(messages));
     }
 }

@@ -1,8 +1,10 @@
 package com.jacob_araujo.message_to_future_api.web.exception;
 
 import com.jacob_araujo.message_to_future_api.exception.*;
+import com.jacob_araujo.message_to_future_api.jwt.JwtAuthenticationEntryPoint;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -71,4 +73,27 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
 
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorMessage> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
+                                                                        HttpServletRequest request) {
+        // Lógica para tratar a exceção
+        log.error("Api Error -", ex);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.CONFLICT, "Data integrity violation"));
+
+    }
+
+    @ExceptionHandler(invalidTokenException.class)
+    public ResponseEntity<ErrorMessage> invalidTokenException(RuntimeException ex,
+                                                               HttpServletRequest request) {
+        log.error("Api Error -", ex);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.UNAUTHORIZED, ex.getMessage()));
+    }
+
 }

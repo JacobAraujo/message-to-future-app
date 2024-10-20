@@ -20,15 +20,20 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
     @Column(name = "username", nullable = false, unique = true, length = 100)
     private String username;
+
     @Column(name = "password", nullable = false, length = 200)
     private String password;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 25)
     private Role role = Role.ROLE_CLIENT;
+
     @Column(name = "available_message_limit")
     private Long availableMessageLimit;
+
     @Column(name = "renovation_limit_date")
     private LocalDateTime renovationLimitDate;
 

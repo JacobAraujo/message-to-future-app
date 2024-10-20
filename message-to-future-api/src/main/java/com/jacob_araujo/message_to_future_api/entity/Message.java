@@ -18,7 +18,7 @@ import java.util.Objects;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 @Entity
 @Table(name = "messages", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"recipient_name", "opening_date_time"})
+        @UniqueConstraint(columnNames = {"recipient_name", "opening_date_time", "sender_user"})
 })
 @EntityListeners(AuditingEntityListener.class)
 public class Message implements Serializable {
@@ -27,7 +27,7 @@ public class Message implements Serializable {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_user_id", nullable = false)
+    @JoinColumn(name = "sender_user", nullable = false)
     private User senderUser;
 
     @Column(name = "message_text", nullable = false, length = 1000)

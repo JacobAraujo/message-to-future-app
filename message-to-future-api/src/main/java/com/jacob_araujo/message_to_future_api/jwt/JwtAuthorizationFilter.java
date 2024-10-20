@@ -1,5 +1,6 @@
 package com.jacob_araujo.message_to_future_api.jwt;
 
+import com.jacob_araujo.message_to_future_api.exception.invalidTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
