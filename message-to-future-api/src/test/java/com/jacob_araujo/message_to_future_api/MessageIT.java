@@ -60,6 +60,23 @@ public class MessageIT {
     }
 
     @Test
+    public void createMessage_messageLimitReached_returnErrorMessage412(){
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("/api/v1/messages")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "bia@email.com", "123456"))
+                .bodyValue(new MessageCreateDto("Oi", "Carlos", "10/10/2025 10:00:00", "Rocket"))
+                .exchange()
+                .expectStatus().isEqualTo(412)
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(412);
+    }
+
+    @Test
     public void createMessage_invalidData_returnErrorMessage422(){
         ErrorMessage responseBody = testClient
                 .post()
@@ -102,6 +119,27 @@ public class MessageIT {
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
         org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+    }
+
+    @Test
+    public void getByLinkToken_validLinkToken_returnMessage200(){
+        MessageResponseDto responseBody = testClient
+                .get()
+                .uri("/api/v1/messages/link/a4f8c1d2-5b6e-4a7f-9b8c-0d1e2f3a4b5c")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(MessageResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getMessageText()).isEqualTo(null);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRecipientName()).isEqualTo("Bob");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNarrativeTheme()).isEqualTo("Geral");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getOpeningDateTime()).isEqualTo(LocalDateTime.of(2025, 10, 10, 10, 0, 0));
+        org.assertj.core.api.Assertions.assertThat(responseBody.getSenderUser()).isEqualTo("ana@email.com");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatusMessage()).isEqualTo("PENDING");
+
     }
 
 }

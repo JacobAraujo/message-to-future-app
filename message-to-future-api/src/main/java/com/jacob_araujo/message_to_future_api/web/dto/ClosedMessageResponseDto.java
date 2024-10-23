@@ -1,6 +1,5 @@
 package com.jacob_araujo.message_to_future_api.web.dto;
 
-import com.jacob_araujo.message_to_future_api.entity.Message;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,11 +9,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class MessageResponseDto {
-
+public class ClosedMessageResponseDto {
     private Long id;
     private Long senderUserId;
-    private String messageText;
     private LocalDateTime openingDateTime;
     private String senderUser;
     private String narrativeTheme;

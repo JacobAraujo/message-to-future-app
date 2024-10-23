@@ -1,6 +1,7 @@
 package com.jacob_araujo.message_to_future_api.web.dto.mapper;
 
 import com.jacob_araujo.message_to_future_api.entity.Message;
+import com.jacob_araujo.message_to_future_api.web.dto.ClosedMessageResponseDto;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageCreateDto;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageResponseDto;
 import org.modelmapper.ModelMapper;
@@ -32,8 +33,6 @@ public class MessageMapper {
         return mapperMain.map(createDto, Message.class);
     }
 
-
-
     public static MessageResponseDto toDto(Message message) {
         String status = message.getStatusMessage().name();
         ModelMapper mapperMain = new ModelMapper();
@@ -43,6 +42,17 @@ public class MessageMapper {
         );
         return mapperMain.map(message, MessageResponseDto.class);
     }
+
+    public static ClosedMessageResponseDto toClosedMessageResponseDto(Message message) {
+        String status = message.getStatusMessage().name();
+        ModelMapper mapperMain = new ModelMapper();
+        TypeMap<Message, ClosedMessageResponseDto> propertyMapper = mapperMain.createTypeMap(Message.class, ClosedMessageResponseDto.class);
+        propertyMapper.addMappings(
+                mapper -> mapper.map(src -> status, ClosedMessageResponseDto::setStatusMessage)
+        );
+        return mapperMain.map(message, ClosedMessageResponseDto.class);
+    }
+
 
     public static List<MessageResponseDto> toListDto(List<Message> messages){
         return messages.stream().map(message -> toDto(message)).collect(Collectors.toList());

@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// TODO testar recurso de pegar mensagem
+// TODO testar limitação de mensagens por usuário no recurso create
 
 @Tag(name= "Mensagens", description = "Contém todas operações relativas aos recursos para cadastro, edição e leitura de mensagens")
 @RequiredArgsConstructor
@@ -41,6 +43,8 @@ public class MessageController {
                     @ApiResponse(responseCode="201", description="Recurso criado com sucesso",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponseDto.class))),
                     @ApiResponse(responseCode = "409", description = "Destinatário já cadastrado no sistema com essa data",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "412", description = "Limite de mensagens por usuário atingido",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "422", description = "Recurso não processado por dados de entrada inválidos",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
@@ -65,6 +69,19 @@ public class MessageController {
     @PreAuthorize("hasRole('ADMIN') OR ( hasRole('CLIENT') AND #id == authentication.principal.getId )")
     public ResponseEntity<MessageResponseDto> getById (@PathVariable Long id){
         Message message = messageService.searchById(id);
+        return ResponseEntity.ok(MessageMapper.toDto(message));
+    }
+
+    @Operation(summary = "Recuperar uma mensagem pelo link",
+            responses = {
+                    @ApiResponse(responseCode="200", description="Recurso recuperado com sucesso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
+    @GetMapping("/link/{linkToken}")
+    public ResponseEntity<MessageResponseDto> getByLinkToken (@PathVariable String linkToken){
+        Message message = messageService.searchByLinkToken(linkToken);
         return ResponseEntity.ok(MessageMapper.toDto(message));
     }
 

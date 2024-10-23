@@ -96,4 +96,14 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.UNAUTHORIZED, ex.getMessage()));
     }
 
+    @ExceptionHandler(UserMessageLimitExceededException.class)
+    public ResponseEntity<ErrorMessage> UserMessageLimitExceededException(RuntimeException ex,
+                                                              HttpServletRequest request) {
+        log.error("Api Error -", ex);
+        return ResponseEntity
+                .status(HttpStatus.PRECONDITION_FAILED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.PRECONDITION_FAILED, ex.getMessage()));
+    }
+
 }

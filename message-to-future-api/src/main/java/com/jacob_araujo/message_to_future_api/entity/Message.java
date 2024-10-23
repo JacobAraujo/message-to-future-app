@@ -46,6 +46,9 @@ public class Message implements Serializable {
     @Column(name = "status", nullable = false, length = 25)
     private StatusMessage statusMessage = StatusMessage.PENDING;
 
+    @Column(name = "link_token", nullable = false, length = 255)
+    private String linkToken;
+
     @CreatedDate
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
