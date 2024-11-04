@@ -31,6 +31,13 @@ public class User implements Serializable {
     @Column(name = "role", nullable = false, length = 25)
     private Role role = Role.ROLE_CLIENT;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "email_verification_status", nullable = false, length = 25)
+    private EmailVerificationStatus emailVerificationStatus = EmailVerificationStatus.PENDING;
+
+    @Column(name = "token_email_verification", length = 255)
+    private String tokenEmailVerification;
+
     @Column(name = "available_message_limit")
     private Long availableMessageLimit;
 
@@ -48,6 +55,10 @@ public class User implements Serializable {
 
     public enum Role {
         ROLE_ADMIN, ROLE_CLIENT
+    }
+
+    public enum EmailVerificationStatus {
+        PENDING, VERIFIED
     }
 
     @Override

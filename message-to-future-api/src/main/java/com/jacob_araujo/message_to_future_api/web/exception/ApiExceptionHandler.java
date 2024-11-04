@@ -14,6 +14,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.format.DateTimeParseException;
+
 @Slf4j
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -104,6 +106,13 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.PRECONDITION_FAILED)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessage(request, HttpStatus.PRECONDITION_FAILED, ex.getMessage()));
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST) // Retorna 400 Bad Request
+                .body("Erro no formato de data: " + ex.getParsedString());
     }
 
 }

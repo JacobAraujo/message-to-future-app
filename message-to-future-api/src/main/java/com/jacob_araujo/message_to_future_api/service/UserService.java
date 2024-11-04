@@ -6,6 +6,9 @@ import com.jacob_araujo.message_to_future_api.exception.InvalidPasswordException
 import com.jacob_araujo.message_to_future_api.exception.UsernameUniqueViolationException;
 import com.jacob_araujo.message_to_future_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +21,26 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Transactional
     public User save(User user) {
         try{
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            return userRepository.save(user);
+            User userSaved = userRepository.save(user);
+
+            String tokenEmailVerification = java.util.UUID.randomUUID().toString();
+            user.setTokenEmailVerification(tokenEmailVerification);
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(userSaved.getUsername());
+            message.setSubject("Verify your email"); // TODO ver como vai ficar o idioma da mensagem
+            message.setText("Click on the link to verify your email: http://localhost:8080/api/v1/users/verify-email/" + tokenEmailVerification);
+            mailSender.send(message);
+
+            return userSaved;
+
         } catch (org.springframework.dao.DataIntegrityViolationException ex) {
             throw new UsernameUniqueViolationException(String.format("Username %s already exists", user.getUsername()));
         }
@@ -63,5 +80,13 @@ public class UserService {
 
     public User.Role searchRoleByUsername(String username) {
         return searchByUsername(username).getRole(); // diferente -> ver se funciona
+    }
+
+    public User verifyEmail(String token) {
+        User user = userRepository.findByTokenEmailVerification(token).orElseThrow(
+                () -> new EntityNotFoundException(String.format("User tokenEmailVerification=%s not found.", token))
+        );
+        user.setEmailVerificationStatus(User.EmailVerificationStatus.VERIFIED);
+        return user;
     }
 }
