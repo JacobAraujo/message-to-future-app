@@ -1,55 +1,54 @@
-// src/components/CountdownTimer.jsx
 import React, { useState, useEffect } from 'react';
 
 function CountdownTimer({ targetDate }) {
-  const calculateTimeLeft = () => {
-    const difference = new Date(targetDate) - new Date();
-    let timeLeft = {};
-
-    if (difference > 0) {
-      timeLeft = {
-        dias: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutos: Math.floor((difference / 1000 / 60) % 60),
-        segundos: Math.floor((difference / 1000) % 60),
-      };
-    }
-
-    return timeLeft;
-  };
-
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      setTimeLeft(getTimeLeft());
     }, 1000);
-
-    // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, []);
 
-  const timerComponents = [];
-
-  Object.keys(timeLeft).forEach((intervalo) => {
-    if (!timeLeft[intervalo]) {
-      return;
-    }
-
-    timerComponents.push(
-      <span key={intervalo}>
-        {timeLeft[intervalo]} {intervalo}{' '}
-      </span>
-    );
-  });
+  function getTimeLeft() {
+    const now = new Date();
+    const difference = targetDate - now;
+    return {
+      days: Math.max(Math.floor(difference / (1000 * 60 * 60 * 24)), 0),
+      hours: Math.max(Math.floor((difference / (1000 * 60 * 60)) % 24), 0),
+      minutes: Math.max(Math.floor((difference / 1000 / 60) % 60), 0),
+      seconds: Math.max(Math.floor((difference / 1000) % 60), 0),
+    };
+  }
 
   return (
-    <div className="countdown-timer">
-      {timerComponents.length ? (
-        <p>Contagem regressiva: {timerComponents}</p>
-      ) : (
-        <p>A mensagem está disponível!</p>
-      )}
+    <div className="flex items-center space-x-4 bg-gray-800 p-6 rounded-lg shadow-2xl border-2 border-gray-600">
+      <TimeUnit label="Dias" value={timeLeft.days} />
+      <Separator />
+      <TimeUnit label="Horas" value={timeLeft.hours} />
+      <Separator />
+      <TimeUnit label="Min" value={timeLeft.minutes} />
+      <Separator />
+      <TimeUnit label="Seg" value={timeLeft.seconds} />
+    </div>
+  );
+}
+
+function TimeUnit({ label, value }) {
+  return (
+    <div className="flex flex-col items-center text-gray-200">
+      <div className="text-4xl font-bold bg-gray-700 bg-opacity-80 px-6 py-3 rounded-md shadow-lg">
+        {value < 10 ? `0${value}` : value}
+      </div>
+      <span className="text-sm font-medium mt-1 tracking-wider">{label}</span>
+    </div>
+  );
+}
+
+function Separator() {
+  return (
+    <div className="text-2xl text-gray-400 font-bold mx-2">
+      :
     </div>
   );
 }
