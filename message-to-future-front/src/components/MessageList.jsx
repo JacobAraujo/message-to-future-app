@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getMessages, deleteMessage } from '../services/api';
 import CopyLinkButton from './CopyLinkButton';
+import FormattedDate from './FormatedDate';
 
 function MessageList() {
   const [messages, setMessages] = useState([]);
@@ -30,7 +31,7 @@ function MessageList() {
           {messages.map((msg) => (
             <tr key={msg.id} className="border-b hover:bg-gray-50">
               <td className="p-4 text-gray-700">{msg.recipientName}</td>
-              <td className="p-4 text-gray-700">{msg.openDate}</td>
+              <td className="p-4 text-gray-700"><FormattedDate dateArray={msg.openingDateTime} /></td>
               <td className="p-4">
                 <button className="mr-2 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition-colors" onClick={() => {/* Função de editar */}}>Editar</button>
                 <CopyLinkButton link={`${window.location.origin}/message/${msg.linkToken}`} />
