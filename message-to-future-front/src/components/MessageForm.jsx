@@ -107,10 +107,20 @@ function MessageForm() {
         </button>
 
         {successMessage && (
-          <div className="mt-6 text-center">
-            <p className="text-green-600 font-semibold">{successMessage}</p>
-            <p className="text-gray-600">Token Link: {tokenLink}</p>
+        <div className="mt-6 text-center">
+          <p className="text-green-600 font-semibold text-lg mb-2">{successMessage}</p>
+          <div className="bg-gray-100 p-2 rounded-md inline-block mt-1">
+            <span className="text-gray-600">Link da mensagem: </span>
+            <a
+              href={`${window.location.origin}/message/${tokenLink}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              {`${window.location.origin}/message/${tokenLink}`}
+            </a>
           </div>
+        </div>
         )}
       </form>
     </div>
