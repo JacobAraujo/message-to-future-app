@@ -1,17 +1,20 @@
 package com.jacob_araujo.message_to_future_api;
 
+import com.jacob_araujo.message_to_future_api.config.TestMailConfig;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageCreateDto;
 import com.jacob_araujo.message_to_future_api.web.dto.MessageResponseDto;
 import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDateTime;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = {MessageToFutureApiApplication.class, TestMailConfig.class})
 @Sql(scripts = "/sql/messages/messages-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/sql/messages/messages-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class MessageIT {

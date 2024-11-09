@@ -7,7 +7,9 @@ import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -20,6 +22,9 @@ public class UserIT {
 
     @Autowired
     WebTestClient testClient;
+
+    @MockBean
+    private JavaMailSender mailSender;
 
     @Test
     public void createUser_validUsernamePassword_returnUserCreatedStatus201(){
