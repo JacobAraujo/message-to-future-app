@@ -97,8 +97,8 @@ function MessageForm() {
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="default">Padrão</option>
-            <option value="space">Espaço</option>
-            <option value="bottle">Mensagem na Garrafa</option>
+            {/* <option value="space">Espaço</option>
+            <option value="bottle">Mensagem na Garrafa</option> */}
           </select>
         </div>
 
