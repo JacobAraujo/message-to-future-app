@@ -41,5 +41,19 @@ export const getMessages = async () => {
 };
 
 export const deleteMessage = async (id) => {
-  await api.delete(`/messages/${id}`);
+  const token = localStorage.getItem('token');
+
+  try{
+    const response = await api.delete(`/messages/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+    
+  } catch (error) {
+    console.error('Erro ao deletar mensagem:', error);
+    throw error;
+  }
 };
