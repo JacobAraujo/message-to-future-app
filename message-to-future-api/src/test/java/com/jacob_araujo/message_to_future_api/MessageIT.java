@@ -122,6 +122,130 @@ public class MessageIT {
     }
 
     @Test
+    public void getMessageById_validIdAdmin_returnMessage200() {
+        MessageResponseDto responseBody = testClient
+                .get()
+                .uri("/api/v1/messages/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(MessageResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRecipientName()).isEqualTo("Bob");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNarrativeTheme()).isEqualTo("Geral");
+    }
+
+    @Test
+    public void getMessageById_validIdClient_returnMessage200() {
+        MessageResponseDto responseBody = testClient
+                .get()
+                .uri("/api/v1/messages/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "bia@email.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(MessageResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRecipientName()).isEqualTo("Bob");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNarrativeTheme()).isEqualTo("Geral");
+    }
+
+    @Test
+    public void getMessageById_invalidIdAdmin_returnErrorMessage404() {
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/messages/0")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void getMessageById_clientSearchingMessageFromOtherUser_returnErrorMessage403() {
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/messages/106")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "bia@email.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
+    }
+
+    @Test
+    public void deleteById_validIdAdmin_returnMessage200() {
+        MessageResponseDto responseBody = testClient
+                .delete()
+                .uri("/api/v1/messages/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(MessageResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRecipientName()).isEqualTo("Bob");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNarrativeTheme()).isEqualTo("Geral");
+    }
+
+    @Test
+    public void deleteById_validIdClient_returnMessage200() {
+        MessageResponseDto responseBody = testClient
+                .delete()
+                .uri("/api/v1/messages/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "bia@email.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(MessageResponseDto.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRecipientName()).isEqualTo("Bob");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNarrativeTheme()).isEqualTo("Geral");
+    }
+
+    @Test
+    public void deleteById_invalidIdAdmin_returnErrorMessage404() {
+        ErrorMessage responseBody = testClient
+                .delete()
+                .uri("/api/v1/messages/0")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "ana@email.com", "123456"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void deleteById_clientDeletingMessageFromOtherUser_returnErrorMessage403() {
+        ErrorMessage responseBody = testClient
+                .delete()
+                .uri("/api/v1/messages/106")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "bia@email.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
+    }
+
+    @Test
     public void getByLinkToken_validLinkToken_returnMessage200(){
         MessageResponseDto responseBody = testClient
                 .get()
@@ -139,7 +263,6 @@ public class MessageIT {
         org.assertj.core.api.Assertions.assertThat(responseBody.getOpeningDateTime()).isEqualTo(LocalDateTime.of(2025, 10, 10, 10, 0, 0));
         org.assertj.core.api.Assertions.assertThat(responseBody.getSenderUser()).isEqualTo("ana@email.com");
         org.assertj.core.api.Assertions.assertThat(responseBody.getStatusMessage()).isEqualTo("PENDING");
-
     }
 
 }

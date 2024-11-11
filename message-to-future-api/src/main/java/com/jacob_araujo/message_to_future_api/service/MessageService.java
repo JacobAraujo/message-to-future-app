@@ -55,4 +55,13 @@ public class MessageService {
         }
         return message;
     }
+
+    public Message delete(Long id) {
+        Message message = searchById(id);
+        messageRepository.delete(message);
+        if (message.getOpeningDateTime().isAfter(java.time.LocalDateTime.now())){
+            message.setMessageText(null);
+        }
+        return message;
+    }
 }

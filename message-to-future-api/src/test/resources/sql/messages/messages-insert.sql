@@ -19,3 +19,6 @@ VALUES (104, 101, 'Oi', 'Ana', '2025-10-10 10:00:00', 'Geral', 'PENDING', 'a4f2c
 
 INSERT INTO MESSAGES (id, sender_user, message_text, recipient_name, opening_date_time, narrative_theme, status, link_token)
 VALUES (105, 101, 'Oi', 'Talis', '2025-10-10 10:00:00', 'Geral', 'PENDING', 'a4f3c1d2-5b6e-4a7f-9b8c-0d1e2f3a4b5c');
+
+INSERT INTO MESSAGES (id, sender_user, message_text, recipient_name, opening_date_time, narrative_theme, status, link_token)
+VALUES (106, 102, 'Oi', 'Bruna', '2025-10-10 10:00:00', 'Geral', 'PENDING', 'a4f3c1d2-5b6e-4a7f-9b8c-0d1e2f3a4b5c');

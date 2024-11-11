@@ -42,6 +42,8 @@ public class MessageController {
             responses = {
                     @ApiResponse(responseCode="201", description="Recurso criado com sucesso",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Token de autenticação inválido",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "409", description = "Destinatário já cadastrado no sistema com essa data",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "412", description = "Limite de mensagens por usuário atingido",
@@ -58,15 +60,37 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageMapper.toDto(messageCreated));
     }
 
+    @Operation(summary = "Deletar uma mensagem pelo id",
+            responses = {
+                    @ApiResponse(responseCode="200", description="Recurso deletado com sucesso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "401", description = "Token de autenticação inválido",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "403", description = "Recurso não permitido ao perfil CLIENT com o id diferente do id do usuário autenticado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') OR (hasRole('CLIENT') AND @messageService.searchById(#id).getSenderUser().getId() == authentication.principal.getId())")
+    public ResponseEntity<MessageResponseDto> delete (@PathVariable Long id){
+        Message message = messageService.delete(id);
+        return ResponseEntity.ok(MessageMapper.toDto(message));
+    }
+
     @Operation(summary = "Recuperar uma mensagem pelo id",
             responses = {
                     @ApiResponse(responseCode="200", description="Recurso recuperado com sucesso",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Token de autenticação inválido",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "403", description = "Recurso não permitido ao perfil CLIENT com o id diferente do id do usuário autenticado",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') OR ( hasRole('CLIENT') AND #id == authentication.principal.getId )")
+    @PreAuthorize("hasRole('ADMIN') OR (hasRole('CLIENT') AND @messageService.searchById(#id).getSenderUser().getId() == authentication.principal.getId())")
     public ResponseEntity<MessageResponseDto> getById (@PathVariable Long id){
         Message message = messageService.searchById(id);
         return ResponseEntity.ok(MessageMapper.toDto(message));
