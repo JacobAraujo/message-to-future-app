@@ -87,4 +87,17 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toListDto(users));
     }
 
+    @Operation(summary = "Verificar email",
+            responses = {
+                    @ApiResponse(responseCode="200", description="Email verificado com sucesso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Token inválido",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
+    @GetMapping("/verify-email/{token}")
+    public ResponseEntity<UserResponseDto> verifyEmail (@PathVariable String token){
+        User user = userService.verifyEmail(token);
+        return ResponseEntity.ok(UserMapper.toDto(user));
+    }
+
 }

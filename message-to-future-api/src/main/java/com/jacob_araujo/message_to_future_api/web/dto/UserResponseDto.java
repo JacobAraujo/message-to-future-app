@@ -12,4 +12,5 @@ public class UserResponseDto {
     private Long id;
     private String username;
     private String role;
+    private String emailVerificationStatus;
 }

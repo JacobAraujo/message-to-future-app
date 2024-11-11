@@ -26,9 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// TODO testar recurso de pegar mensagem
-// TODO testar limitação de mensagens por usuário no recurso create
-
 @Tag(name= "Mensagens", description = "Contém todas operações relativas aos recursos para cadastro, edição e leitura de mensagens")
 @RequiredArgsConstructor
 @RestController
