@@ -109,7 +109,7 @@ public class UserService {
 
         message.setText("Link to reset your password:\n" +
                 "\n" +
-                "https://mywebsite.com/reset-password?token=<" + token + ">\n" +
+                "http://localhost:5173/reset-password/" + token + "\n" +
                 "\n" +
                 "This link is valid for 30 minutes. If you didn’t request this, please ignore this email.");
 

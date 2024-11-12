@@ -22,6 +22,10 @@ function LoginForm() {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigate('/forgot-password'); 
+  };
+
   return (
     <form className="p-6 bg-white rounded shadow-md w-96 h-auto" onSubmit={handleSubmit}>
       {error && <p className='error'>{error}</p>}
@@ -42,6 +46,22 @@ function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
+
+      <div className="flex justify-end mb-4">
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          className="text-xs text-gray-400 underline hover:text-gray-600 focus:outline-none"
+          style={{
+            backgroundColor: 'transparent',
+            border: 'none',
+            padding: 0,
+          }}
+        >
+          Esqueci a senha
+        </button>
+      </div>
+
       <button className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600">
         Entrar
       </button>

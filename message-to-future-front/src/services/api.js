@@ -57,3 +57,25 @@ export const deleteMessage = async (id) => {
     throw error;
   }
 };
+
+export const sendForgotPasswordRequest = async (username) => {
+  try {
+    const response = await api.post('/users/forgot-password', { username });
+
+    if (!response.status === 204) {
+      throw new Error('Falha ao enviar e-mail de recuperação de senha.');
+    }
+    return { success: true, message: 'Email de recuperação enviado' };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
+export const resetPasswordRequest = async (data) => {
+  try {
+    const response = await api.post('/users/reset-password', data);
+    return { success: true, message: 'Password reset successful' };
+  } catch (error) {
+    return { success: false, message: error.response?.data?.message || 'Password reset failed' };
+  }
+};
