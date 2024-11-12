@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -88,5 +89,46 @@ public class UserService {
         );
         user.setEmailVerificationStatus(User.EmailVerificationStatus.VERIFIED);
         return user;
+    }
+
+    public String generateAndSavePasswordResetToken(User user) {
+        String token = java.util.UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setTokenExpiration(LocalDateTime.now().plusMinutes(30));
+        userRepository.save(user);
+        return token;
+    }
+
+    public void forgotPassword(String username) {
+        User user = searchByUsername(username);
+        String token = generateAndSavePasswordResetToken(user);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(username);
+        message.setSubject("Password Reset Request");
+
+        message.setText("Link to reset your password:\n" +
+                "\n" +
+                "https://mywebsite.com/reset-password?token=<" + token + ">\n" +
+                "\n" +
+                "This link is valid for 30 minutes. If you didn’t request this, please ignore this email.");
+
+        mailSender.send(message);
+    }
+
+    public void resetPassword(String resetToken, String newPassword, String confirmPassword) {
+        User user = userRepository.findByResetToken(resetToken).orElseThrow(
+                () -> new EntityNotFoundException(String.format("User resetToken=%s not found.", resetToken))
+        );
+
+        if (!newPassword.equals(confirmPassword)){
+            throw new InvalidPasswordException("New password is not the same of confirm password.");
+        }
+
+        if (user != null && user.getTokenExpiration().isAfter(LocalDateTime.now())) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setResetToken(null);
+            user.setTokenExpiration(null);
+        }
     }
 }

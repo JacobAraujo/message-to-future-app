@@ -2,9 +2,7 @@ package com.jacob_araujo.message_to_future_api.web.controller;
 
 import com.jacob_araujo.message_to_future_api.entity.User;
 import com.jacob_araujo.message_to_future_api.service.UserService;
-import com.jacob_araujo.message_to_future_api.web.dto.UserCreateDto;
-import com.jacob_araujo.message_to_future_api.web.dto.UserPasswordDto;
-import com.jacob_araujo.message_to_future_api.web.dto.UserResponseDto;
+import com.jacob_araujo.message_to_future_api.web.dto.*;
 import com.jacob_araujo.message_to_future_api.web.dto.mapper.UserMapper;
 import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +70,18 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT') AND #id == authentication.principal.getId")
     public ResponseEntity<Void> changePassword (@PathVariable Long id, @Valid @RequestBody UserPasswordDto dto){
         userService.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword (@RequestBody UserUsernameDto dto){
+        userService.forgotPassword(dto.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword (@RequestBody UserResetPasswordDto dto){
+        userService.resetPassword(dto.getResetToken(), dto.getNewPassword(), dto.getConfirmPassword());
         return ResponseEntity.noContent().build();
     }
 

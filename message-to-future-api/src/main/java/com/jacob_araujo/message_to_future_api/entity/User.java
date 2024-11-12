@@ -38,6 +38,12 @@ public class User implements Serializable {
     @Column(name = "token_email_verification", length = 255)
     private String tokenEmailVerification;
 
+    @Column(name = "reset_token", length = 255)
+    private String resetToken;
+
+    @Column(name = "token_expiration")
+    private LocalDateTime tokenExpiration;
+
     @Column(name = "available_message_limit")
     private Long availableMessageLimit;
 
