@@ -49,6 +49,7 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "api/v1/messages/link/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/v1/users/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/v1/users/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/v1/users/verify-email/*").permitAll()
                         .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(

@@ -84,3 +84,8 @@ export const createUser = async (userData) => {
   const response = await api.post('/users', userData);
   return response.status;
 };
+
+export const verifyEmail = async (token) => {
+  const response = await api.get(`/users/verify-email/${token}`);
+  return response.status;
+}

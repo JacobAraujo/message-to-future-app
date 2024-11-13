@@ -37,7 +37,7 @@ public class UserService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(userSaved.getUsername());
             message.setSubject("Verify your email"); // TODO ver como vai ficar o idioma da mensagem
-            message.setText("Click on the link to verify your email: http://localhost:8080/api/v1/users/verify-email/" + tokenEmailVerification);
+            message.setText("Click on the link to verify your email: http://localhost:5173/verification-email/" + tokenEmailVerification);
             mailSender.send(message);
 
             return userSaved;
@@ -83,6 +83,7 @@ public class UserService {
         return searchByUsername(username).getRole(); // diferente -> ver se funciona
     }
 
+    @Transactional
     public User verifyEmail(String token) {
         User user = userRepository.findByTokenEmailVerification(token).orElseThrow(
                 () -> new EntityNotFoundException(String.format("User tokenEmailVerification=%s not found.", token))
@@ -116,6 +117,7 @@ public class UserService {
         mailSender.send(message);
     }
 
+    @Transactional
     public void resetPassword(String resetToken, String newPassword, String confirmPassword) {
         User user = userRepository.findByResetToken(resetToken).orElseThrow(
                 () -> new EntityNotFoundException(String.format("User resetToken=%s not found.", resetToken))

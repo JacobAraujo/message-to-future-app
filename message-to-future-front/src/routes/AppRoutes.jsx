@@ -1,4 +1,3 @@
-// src/routes/AppRoutes.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/LoginPage';
@@ -9,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import CreateAccountPage from '../pages/CreateAccountPage';
+import VerificationEmailPage from '../pages/VerificationEmailPage';
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -35,6 +35,8 @@ function AppRoutes() {
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
       <Route path="/create-account" element={<CreateAccountPage />} />
+
+      <Route path="/verification-email/:token" element={<VerificationEmailPage />} />
     </Routes>
   );
 }
