@@ -2,9 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { getMessages, deleteMessage } from '../services/api';
 import CopyLinkButton from './CopyLinkButton';
 import FormattedDate from './FormatedDate';
+import PopupMessage from './PopupMessage';
 
 function MessageList() {
   const [messages, setMessages] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+
+  const handleMessageShow = (message) => {
+    setPopupMessage(message);
+    setIsOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsOpen(false);
+    setPopupMessage('');
+  };
 
   useEffect(() => {
     getMessages().then((data) => setMessages(data));
@@ -33,7 +46,8 @@ function MessageList() {
               <td className="p-4 text-gray-700">{msg.recipientName}</td>
               <td className="p-4 text-gray-700"><FormattedDate dateArray={msg.openingDateTime} /></td>
               <td className="p-4">
-                <button className="mr-2 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition-colors" onClick={() => {/* Função de exibir */}}>Exibir</button>
+                <button className="mr-2 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition-colors" onClick={() => {handleMessageShow(msg.messageText)}}>Exibir</button>
+                {isOpen && <PopupMessage message={popupMessage} onClose={closePopup} />}
                 <CopyLinkButton link={`${window.location.origin}/message/${msg.linkToken}`} />
                 <button className="px-3 py-1 text-sm font-medium text-red-600 bg-red-100 rounded hover:bg-red-200 transition-colors" onClick={() => handleDelete(msg.id)}>Excluir</button>
               </td>
