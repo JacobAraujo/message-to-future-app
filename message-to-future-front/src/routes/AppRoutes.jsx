@@ -8,6 +8,7 @@ import MessageViewPage from '../pages/MessageViewPage';
 import { useAuth } from '../context/AuthContext';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
+import CreateAccountPage from '../pages/CreateAccountPage';
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -32,6 +33,8 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+      <Route path="/create-account" element={<CreateAccountPage />} />
     </Routes>
   );
 }

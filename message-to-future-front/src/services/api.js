@@ -79,3 +79,8 @@ export const resetPasswordRequest = async (data) => {
     return { success: false, message: error.response?.data?.message || 'Password reset failed' };
   }
 };
+
+export const createUser = async (userData) => {
+  const response = await api.post('/users', userData);
+  return response.status;
+};

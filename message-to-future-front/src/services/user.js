@@ -1,4 +1,3 @@
-// src/services/user.js
 import api from './api';
 
 export const getUserData = async () => {

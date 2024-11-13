@@ -65,6 +65,16 @@ function LoginForm() {
       <button className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600">
         Entrar
       </button>
+
+      <div className="flex flex-col items-center w-full max-w-md">
+        <hr className="w-full border-t border-gray-300 my-5" />
+        <button
+          onClick={() => navigate('/create-account')}
+          className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+        >
+          Criar Conta
+        </button>
+      </div>
     </form>
   );
 }
