@@ -18,12 +18,11 @@ function CopyLinkButton({ link }) {
     <>
       <button
         onClick={handleCopy}
-        className="mr-2 px-3 py-1 text-sm font-medium text-green-600 bg-green-100 rounded hover:bg-green-200 transition-colors"
+        className="mr-2 px-3 py-1 text-xs font-medium text-green-600 bg-green-100 rounded hover:bg-green-200 transition-colors"
       >
         Copiar Link 
       </button>
 
-      {/* Feedback visual */}
       {copied && (
         <span className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm py-2 px-4 rounded-lg shadow-lg animate-fadeIn">
           Link copiado!
