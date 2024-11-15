@@ -89,3 +89,8 @@ export const verifyEmail = async (token) => {
   const response = await api.get(`/users/verify-email/${token}`);
   return response.status;
 }
+
+export const getLimit = async (token) => {
+  const response = await api.get('/messages/limit');
+  return response.data;
+}

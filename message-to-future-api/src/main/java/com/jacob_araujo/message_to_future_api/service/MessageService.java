@@ -1,6 +1,7 @@
 package com.jacob_araujo.message_to_future_api.service;
 
 import com.jacob_araujo.message_to_future_api.entity.Message;
+import com.jacob_araujo.message_to_future_api.entity.User;
 import com.jacob_araujo.message_to_future_api.exception.EntityNotFoundException;
 import com.jacob_araujo.message_to_future_api.exception.RecipientAndDataUniqueViolationException;
 import com.jacob_araujo.message_to_future_api.exception.UserMessageLimitExceededException;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class MessageService {
 
     private final MessageRepository messageRepository;
+    private final UserService userService;
 
     private static final int MAX_MESSAGES_PER_USER = 5;
 
@@ -29,6 +31,8 @@ public class MessageService {
         String linkToken = UUID.randomUUID().toString(); // TODO talvez mudar a forma como é gerado o link
         message.setLinkToken(linkToken);
         try{
+            User user = userService.searchById(message.getSenderUser().getId());
+            user.setAvailableMessageLimit(user.getAvailableMessageLimit() - 1);
             return messageRepository.save(message);
         } catch (org.springframework.dao.DataIntegrityViolationException ex) {
             throw new RecipientAndDataUniqueViolationException(String.format("Recipient %s already exists with this data", message.getRecipientName()));
@@ -58,6 +62,8 @@ public class MessageService {
 
     public Message delete(Long id) {
         Message message = searchById(id);
+        User user = userService.searchById(message.getSenderUser().getId());
+        user.setAvailableMessageLimit(user.getAvailableMessageLimit() + 1);
         messageRepository.delete(message);
         if (message.getOpeningDateTime().isAfter(java.time.LocalDateTime.now())){
             message.setMessageText(null);

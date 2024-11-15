@@ -116,4 +116,11 @@ public class MessageController {
         List<Message> messages = messageService.searchAllMessagesFromOneUser(userDetails.getId());
         return ResponseEntity.ok(MessageMapper.toListDto(messages));
     }
+
+    @GetMapping("/limit")
+    public ResponseEntity<Long> getLimitMessagesFromOneUser (@AuthenticationPrincipal JwtUserDetails userDetails) {
+        User user = userService.searchById(userDetails.getId());
+        System.out.println(user.getAvailableMessageLimit());
+        return ResponseEntity.ok(user.getAvailableMessageLimit());
+    }
 }

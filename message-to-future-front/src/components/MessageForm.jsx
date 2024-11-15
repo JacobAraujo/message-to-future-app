@@ -9,7 +9,7 @@ import CopyLinkButton from './CopyLinkButton';
 
 registerLocale('pt-BR', ptBR);
 
-function MessageForm() {
+function MessageForm( { onMessageSent } ) {
   const [formData, setFormData] = useState({
     messageText: '',
     recipientName: '',
@@ -45,6 +45,11 @@ function MessageForm() {
       setErrorMessage(''); 
       setTokenLink(`${window.location.origin}/message/${data.linkToken}`);
       setShowPopup(true);
+
+      if (onMessageSent) {
+        onMessageSent();
+      }
+
     } catch (err) {
       if (err.status === 409) {
         setErrorMessage('Já existe uma mensagem agendada para este destinatário nessa data e hora de entrega.');

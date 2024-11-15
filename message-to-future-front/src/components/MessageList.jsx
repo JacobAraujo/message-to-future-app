@@ -4,7 +4,7 @@ import CopyLinkButton from './CopyLinkButton';
 import FormattedDate from './FormatedDate';
 import PopupMessage from './PopupMessage';
 
-function MessageList() {
+function MessageList( { onDeleteMessage } ) {
   const [messages, setMessages] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
@@ -23,11 +23,12 @@ function MessageList() {
     getMessages().then((data) => setMessages(data));
   }, []);
 
-  console.log(messages);
-
   const handleDelete = async (id) => {
     await deleteMessage(id);
     setMessages(messages.filter((msg) => msg.id !== id));
+    if (onDeleteMessage) {
+      onDeleteMessage();
+    }
   };
 
   return (

@@ -21,13 +21,15 @@ function CreateAccountPage() {
       return;
     }
 
-    const result = await createUser({ username, password });
-
-    if (result === 201) {
-      setMessage('Conta criada com sucesso');
-      setTimeout(() => navigate('/login'), 500);
-    } else {
-      setError(result.message || "Falha ao criar conta.");
+    try {
+      const result = await createUser({ username, password });
+    } catch (error) {
+      if (result === 201) {
+        setMessage('Conta criada com sucesso');
+        setTimeout(() => navigate('/login'), 500);
+      } else {
+        setError(result.message || "Falha ao criar conta.");
+      }
     }
   };
 

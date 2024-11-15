@@ -45,7 +45,7 @@ public class User implements Serializable {
     private LocalDateTime tokenExpiration;
 
     @Column(name = "available_message_limit")
-    private Long availableMessageLimit;
+    private Long availableMessageLimit = 5L;
 
     @Column(name = "renovation_limit_date")
     private LocalDateTime renovationLimitDate;
