@@ -46,11 +46,15 @@ function MessageForm() {
       setTokenLink(`${window.location.origin}/message/${data.linkToken}`);
       setShowPopup(true);
     } catch (err) {
-      console.error(err);
+      if (err.status === 409) {
+        setErrorMessage('Já existe uma mensagem agendada para este destinatário nessa data e hora de entrega.');
+      } else if (err.status === 412) {
+      setErrorMessage('Limite de mensagens atingido.')
+      } else {
       setErrorMessage('Erro ao enviar a mensagem. Por favor, tente novamente mais tarde.');
+      }
       setSuccessMessage(''); 
       setShowPopup(true);
-      console.error(err);
     }
   };
 
