@@ -10,7 +10,24 @@ function CreateAccountForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false); 
   const navigate = useNavigate();
+
+  const [lengthValid, setLengthValid] = useState(false);
+  const [hasLetter, setHasLetter] = useState(false);
+  const [hasNumber, setHasNumber] = useState(false);
+
+  const validatePassword = (value) => {
+    setLengthValid(value.length >= 8);
+    setHasLetter(/[A-Za-z]/.test(value));
+    setHasNumber(/\d/.test(value));
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    validatePassword(value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,23 +35,29 @@ function CreateAccountForm() {
     setSuccessMessage('');
 
     if (password !== confirmPassword) {
-      setErrorMessage("Senhas não conferem.");
+      setErrorMessage('Senhas não conferem.');
+      setShowPopup(true);
+      return;
+    }
+
+    if (!lengthValid || !hasLetter || !hasNumber) {
+      setErrorMessage('A senha não atende aos requisitos.');
       setShowPopup(true);
       return;
     }
 
     try {
-        const result = await createUser({ username, password });
-        setSuccessMessage('Conta criada com sucesso!');
-        setShowPopup(true);
-        setTimeout(() => navigate('/login'), 1000);
+      const result = await createUser({ username, password });
+      setSuccessMessage('Conta criada com sucesso!');
+      setShowPopup(true);
+      setTimeout(() => navigate('/login'), 1000);
     } catch (err) {
-        if (err.status === 409) {
-            setErrorMessage('Este email já está em uso.');
-        } else {
-            setErrorMessage('Erro inesperado. Tente novamente mais tarde.');
-        }
-        setShowPopup(true);
+      if (err.status === 409) {
+        setErrorMessage('Este email já está em uso.');
+      } else {
+        setErrorMessage('Erro inesperado. Tente novamente mais tarde.');
+      }
+      setShowPopup(true);
     }
   };
 
@@ -56,13 +79,29 @@ function CreateAccountForm() {
           placeholder="Senha"
           className="w-full p-2 mb-4 border rounded"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handlePasswordChange} 
+          onFocus={() => setShowChecklist(true)}
+          onBlur={() => !password && setShowChecklist(false)}
           required
         />
+        {showChecklist && (
+          <div className="text-xs mb-4 text-gray-500">
+            <div className={`flex items-center ${lengthValid ? 'text-green-600' : 'text-red-600'}`}>
+              {lengthValid ? '✔' : '✖'} Pelo menos 8 caracteres
+            </div>
+            <div className={`flex items-center ${hasLetter ? 'text-green-600' : 'text-red-600'}`}>
+              {hasLetter ? '✔' : '✖'} Pelo menos uma letra
+            </div>
+            <div className={`flex items-center ${hasNumber ? 'text-green-600' : 'text-red-600'}`}>
+              {hasNumber ? '✔' : '✖'} Pelo menos um número
+            </div>
+          </div>
+        )}
+
         <input
           type="password"
           placeholder="Confirmar senha"
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 mb-4 border rounded" 
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
@@ -78,11 +117,12 @@ function CreateAccountForm() {
 
       {showPopup && (
         <PopupMessage
-          message={successMessage || errorMessage} // Mostra mensagem de sucesso ou erro
+          message={successMessage || errorMessage}
           onClose={() => setShowPopup(false)}
         />
       )}
     </div>
+
   );
 }
 
