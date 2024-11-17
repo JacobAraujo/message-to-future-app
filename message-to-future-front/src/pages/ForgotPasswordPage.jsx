@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendForgotPasswordRequest } from '../services/api';
+import Loading from '../components/Loading';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -9,12 +10,17 @@ function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const [showLoading, setShowLoading] = useState(false);
+
   const handleSubmit = async (e) => {
+    setShowLoading(true);
+
     e.preventDefault();
     setMessage('');
     setError('');
 
     const result = await sendForgotPasswordRequest(email);
+    setShowLoading(false);
     
     if (result.success) {
       setMessage(result.message);
@@ -47,6 +53,10 @@ function ForgotPasswordPage() {
         >
           Enviar
         </button>
+
+        {showLoading && (
+          <Loading />
+        )}
       </form>
     </div>
   );

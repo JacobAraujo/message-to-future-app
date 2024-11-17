@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUser } from '../services/api';
 import PopupMessage from './PopupMessage';
+import { set } from 'date-fns';
+import Loading from './Loading';
 
 function CreateAccountForm() {
   const [username, setUsername] = useState('');
@@ -10,6 +12,7 @@ function CreateAccountForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false); 
   const navigate = useNavigate();
 
@@ -30,18 +33,21 @@ function CreateAccountForm() {
   };
 
   const handleSubmit = async (e) => {
+    setShowLoading(true);
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
     if (password !== confirmPassword) {
       setErrorMessage('Senhas não conferem.');
+      setShowLoading(false);
       setShowPopup(true);
       return;
     }
 
     if (!lengthValid || !hasLetter || !hasNumber) {
       setErrorMessage('A senha não atende aos requisitos.');
+      setShowLoading(false);
       setShowPopup(true);
       return;
     }
@@ -49,6 +55,7 @@ function CreateAccountForm() {
     try {
       const result = await createUser({ username, password });
       setSuccessMessage('Conta criada com sucesso!');
+      setShowLoading(false);
       setShowPopup(true);
       setTimeout(() => navigate('/login'), 1000);
     } catch (err) {
@@ -57,6 +64,7 @@ function CreateAccountForm() {
       } else {
         setErrorMessage('Erro inesperado. Tente novamente mais tarde.');
       }
+      setShowLoading(false);
       setShowPopup(true);
     }
   };
@@ -113,6 +121,10 @@ function CreateAccountForm() {
         >
           Cadastre-se
         </button>
+
+        {showLoading && (
+        <Loading />
+        )}
       </form>
 
       {showPopup && (
