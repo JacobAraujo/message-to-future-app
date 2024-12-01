@@ -14,15 +14,15 @@ import lombok.*;
 public class UserPasswordDto {
 
     @NotBlank
-    @Size(min = 8)
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+    @Size(min = 8, max = 30)
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8}$")
     private String currentPassword;
     @NotBlank
-    @Size(min = 8)
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+    @Size(min = 8, max = 30)
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8}$")
     private String newPassword;
     @NotBlank
-    @Size(min = 8)
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+    @Size(min = 8, max = 30)
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8}$")
     private String confirmPassword;
 }

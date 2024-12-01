@@ -1,3 +1,3 @@
-insert into USERS(id, username, password, role, email_verification_status) values (100, 'ana@email.com', '$2a$10$Z7/3dclbuOLEOKUt5EMdG.lzK4bYlbUtVjAehj2Y45QxTJ/mwAg3.', 'ROLE_ADMIN', 'PENDING');
-insert into USERS(id, username, password, role, email_verification_status) values (101, 'bia@email.com', '$2a$10$Z7/3dclbuOLEOKUt5EMdG.lzK4bYlbUtVjAehj2Y45QxTJ/mwAg3.', 'ROLE_CLIENT', 'PENDING');
-insert into USERS(id, username, password, role, email_verification_status) values (102, 'bob@email.com', '$2a$10$Z7/3dclbuOLEOKUt5EMdG.lzK4bYlbUtVjAehj2Y45QxTJ/mwAg3.', 'ROLE_CLIENT', 'PENDING');
+insert into USERS(id, username, password, role, email_verification_status) values (100, 'ana@email.com', '$2a$12$Y1dpIAWIvPRPFCP3qRpJ2u0Yq.BZoi2k2h4x3lT.c6bA49vf19rku', 'ROLE_ADMIN', 'PENDING');
+insert into USERS(id, username, password, role, email_verification_status) values (101, 'bia@email.com', '$2a$12$Y1dpIAWIvPRPFCP3qRpJ2u0Yq.BZoi2k2h4x3lT.c6bA49vf19rku', 'ROLE_CLIENT', 'PENDING');
+insert into USERS(id, username, password, role, email_verification_status) values (102, 'bob@email.com', '$2a$12$Y1dpIAWIvPRPFCP3qRpJ2u0Yq.BZoi2k2h4x3lT.c6bA49vf19rku', 'ROLE_CLIENT', 'PENDING');
