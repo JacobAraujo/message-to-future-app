@@ -36,31 +36,6 @@ public class SpringSecurityConfig {
             "/**.html", "/webjars/**", "/configuration/**", "/swagger-resources/**"
     };
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(csrf  -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "api/v1/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "api/v1/auth").permitAll()
-                        .requestMatchers(HttpMethod.GET, "api/v1/messages/link/*").permitAll()
-                        .requestMatchers(HttpMethod.POST, "api/v1/users/forgot-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "api/v1/users/reset-password").permitAll()
-                        .requestMatchers(HttpMethod.GET, "api/v1/users/verify-email/*").permitAll()
-                        .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
-                        .anyRequest().authenticated()
-                ).sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                ).addFilterBefore(
-                        jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class
-                ).exceptionHandling( ex -> ex
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-                ).build();
-    }
-
     private CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
@@ -85,6 +60,31 @@ public class SpringSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf  -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/messages/link/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/forgot-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/verify-email/*").permitAll()
+                        .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
+                        .anyRequest().authenticated()
+                ).sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                ).addFilterBefore(
+                        jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class
+                ).exceptionHandling( ex -> ex
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                ).build();
     }
 
 }
