@@ -1,0 +1,20 @@
+[0;1;32m●[0m message-to-future.service - Message-to-Future API (Spring Boot)
+     Loaded: loaded (]8;;file://srv842912/etc/systemd/system/message-to-future.service/etc/systemd/system/message-to-future.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Wed 2025-06-04 06:32:44 UTC; 1s ago
+   Main PID: 127133 (java)
+      Tasks: 21 (limit: 9486)
+     Memory: 141.5M (peak: 141.7M)
+        CPU: 2.517s
+     CGroup: /system.slice/message-to-future.service
+             └─[0;38;5;245m127133 /usr/bin/java -jar /root/message-to-future-app/message-to-future-api/target/message-to-future-api-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod[0m
+
+Jun 04 06:32:44 srv842912 systemd[1]: Started message-to-future.service - Message-to-Future API (Spring Boot).
+Jun 04 06:32:45 srv842912 java[127133]:   .   ____          _            __ _ _
+Jun 04 06:32:45 srv842912 java[127133]:  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+Jun 04 06:32:45 srv842912 java[127133]: ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+Jun 04 06:32:45 srv842912 java[127133]:  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+Jun 04 06:32:45 srv842912 java[127133]:   '  |____| .__|_| |_|_| |_\__, | / / / /
+Jun 04 06:32:45 srv842912 java[127133]:  =========|_|==============|___/=/_/_/_/
+Jun 04 06:32:45 srv842912 java[127133]:  :: Spring Boot ::                (v3.3.4)
+Jun 04 06:32:45 srv842912 java[127133]: 2025-06-04T06:32:45.536Z  INFO 127133 --- [message-to-future-api] [           main] c.j.m.MessageToFutureApiApplication      : Starting MessageToFutureApiApplication v0.0.1-SNAPSHOT using Java 21.0.7 with PID 127133 (/root/message-to-future-app/message-to-future-api/target/message-to-future-api-0.0.1-SNAPSHOT.jar started by root in /root/message-to-future-app/message-to-future-api)
+Jun 04 06:32:45 srv842912 java[127133]: 2025-06-04T06:32:45.539Z  INFO 127133 --- [message-to-future-api] [           main] c.j.m.MessageToFutureApiApplication      : The following 1 profile is active: "prod"
