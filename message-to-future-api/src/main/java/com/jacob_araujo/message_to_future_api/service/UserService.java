@@ -37,7 +37,7 @@ public class UserService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(userSaved.getUsername());
             message.setSubject("Verify your email"); // TODO ver como vai ficar o idioma da mensagem
-            message.setText("Click on the link to verify your email: http://localhost:5173/verification-email/" + tokenEmailVerification);
+            message.setText("Click on the link to verify your email: https://message-to-future.site/verification-email/" + tokenEmailVerification);
             mailSender.send(message);
 
             return userSaved;
@@ -110,7 +110,7 @@ public class UserService {
 
         message.setText("Link to reset your password:\n" +
                 "\n" +
-                "http://localhost:5173/reset-password/" + token + "\n" +
+                "https://message-to-future.site/reset-password/" + token + "\n" +
                 "\n" +
                 "This link is valid for 30 minutes. If you didn’t request this, please ignore this email.");
 
