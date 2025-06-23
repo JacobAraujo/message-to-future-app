@@ -72,7 +72,12 @@ export const sendForgotPasswordRequest = async (username) => {
 };
 
 export const resetPasswordRequest = async (data) => {
-    return response = await api.post('/users/reset-password', data);
+  try {
+    const response = await api.post('/users/reset-password', data);
+    return { success: true, message: 'Password reset successful' };
+  } catch (error) {
+    return { success: false, message: error.response?.data?.message || 'Password reset failed' };
+  }
 };
 
 export const createUser = async (userData) => {

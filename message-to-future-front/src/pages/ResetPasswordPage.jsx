@@ -52,30 +52,26 @@ function ResetPasswordPage() {
       return;
     }
 
-    try {
-      const { status, data } = await resetPasswordRequest({
-        resetToken: token,
-        newPassword,
-        confirmPassword,
-      });
+    const { success, message } = await resetPasswordRequest({
+      resetToken: token,
+      newPassword,
+      confirmPassword,
+    });
 
-      if (status === 204 || status === 200) {
-        setSuccessMessage(
-          'Senha redefinida com sucesso! Você será redirecionado para o login.'
-        );
-        setShowPopup(true);
-        setTimeout(() => navigate('/login'), 4000);
-      } else {
-        setErrorMessage(data?.message || 'Erro ao redefinir a senha.');
-        setShowPopup(true);
-      }
-    } catch (err) {
-      setErrorMessage(err.message || 'Erro inesperado.');
+    if (success) {
+      setSuccessMessage(
+        'Senha redefinida com sucesso! Você será redirecionado para o login.'
+      );
       setShowPopup(true);
-    } finally {
-      setIsLoading(false);
+      setTimeout(() => navigate('/login'), 4000);
+    } else {
+      setErrorMessage(message || 'Erro ao redefinir a senha.');
+      setShowPopup(true);
     }
-  };
+
+    setIsLoading(false);
+
+    };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
