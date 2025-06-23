@@ -9,16 +9,43 @@ function ResetPasswordPage() {
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
+  const [lengthValid, setLengthValid] = useState(false);
+  const [hasLetter, setHasLetter] = useState(false);
+  const [hasNumber, setHasNumber] = useState(false);
+
+  const validatePassword = (value) => {
+    setLengthValid(value.length >= 8);
+    setHasLetter(/[A-Za-z]/.test(value));
+    setHasNumber(/\d/.test(value));
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setNewPassword(value);
+    validatePassword(value);
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     setError('');
 
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+    if (password !== confirmPassword) {
+      setErrorMessage('Senhas não conferem.');
+      setShowLoading(false);
+      setShowPopup(true);
+      return;
+    }
+
+    if (!lengthValid || !hasLetter || !hasNumber) {
+      setErrorMessage('A senha não atende aos requisitos.');
+      setShowLoading(false);
+      setShowPopup(true);
       return;
     }
 
@@ -46,12 +73,27 @@ function ResetPasswordPage() {
           placeholder="New Password"
           className="w-full p-2 mb-4 border rounded"
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          onChange={handlePasswordChange}
           required
         />
+
+        {showChecklist && (
+          <div className="text-xs mb-4 text-gray-500">
+            <div className={`flex items-center ${lengthValid ? 'text-green-600' : 'text-red-600'}`}>
+              {lengthValid ? '✔' : '✖'} Pelo menos 8 caracteres
+            </div>
+            <div className={`flex items-center ${hasLetter ? 'text-green-600' : 'text-red-600'}`}>
+              {hasLetter ? '✔' : '✖'} Pelo menos uma letra
+            </div>
+            <div className={`flex items-center ${hasNumber ? 'text-green-600' : 'text-red-600'}`}>
+              {hasNumber ? '✔' : '✖'} Pelo menos um número
+            </div>
+          </div>
+        )}
+
         <input
           type="password"
-          placeholder="Confirm Password"
+          placeholder="Confirmar Senha"
           className="w-full p-2 mb-4 border rounded"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
@@ -64,6 +106,13 @@ function ResetPasswordPage() {
           Reset Password
         </button>
       </form>
+
+      {showPopup && (
+        <PopupMessage
+          message={successMessage || errorMessage}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </div>
   );
 }
