@@ -1,4 +1,3 @@
-// src/pages/ResetPasswordPage.jsx
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { resetPasswordRequest } from '../services/api';
@@ -71,7 +70,7 @@ function ResetPasswordPage() {
         className="p-6 bg-white rounded shadow-md w-96"
         onSubmit={handleSubmit}
       >
-        <h2 className="mb-4 text-2xl font-bold text-center">Reset Password</h2>
+        <h2 className="mb-4 text-2xl font-bold text-center">Redefinir Senha</h2>
         {message && <p className="mb-4 text-green-500">{message}</p>}
         {error && <p className="mb-4 text-red-500">{error}</p>}
         <input
