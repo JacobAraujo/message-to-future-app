@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { resetPasswordRequest } from '../services/api';
+import PopupMessage from '../components/PopupMessage'; // ajuste o caminho se necessário
 
 function ResetPasswordPage() {
-  const { token } = useParams(); // Captura o token da URL
+  const { token } = useParams();          // token do link /reset/:token
   const navigate = useNavigate();
-
+  
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showChecklist, setShowChecklist] = useState(false); 
-  const [errorMessage, setErrorMessage] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
 
   const [lengthValid, setLengthValid] = useState(false);
-  const [hasLetter, setHasLetter] = useState(false);
-  const [hasNumber, setHasNumber] = useState(false);
+  const [hasLetter, setHasLetter]   = useState(false);
+  const [hasNumber, setHasNumber]   = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
+
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage]     = useState('');
+  const [showPopup, setShowPopup]           = useState(false);
+  const [isLoading, setIsLoading]           = useState(false);
 
   const validatePassword = (value) => {
     setLengthValid(value.length >= 8);
@@ -29,93 +32,99 @@ function ResetPasswordPage() {
     validatePassword(value);
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
     setSuccessMessage('');
+    setErrorMessage('');
+    setIsLoading(true);
 
-    if (password !== confirmPassword) {
-      setErrorMessage('Senhas não conferem.');
-      setShowLoading(false);
+    if (newPassword !== confirmPassword) {
+      setErrorMessage('As senhas não conferem.');
       setShowPopup(true);
+      setIsLoading(false);
       return;
     }
 
     if (!lengthValid || !hasLetter || !hasNumber) {
       setErrorMessage('A senha não atende aos requisitos.');
-      setShowLoading(false);
       setShowPopup(true);
+      setIsLoading(false);
       return;
     }
 
-    const result = await resetPasswordRequest({ resetToken: token, newPassword, confirmPassword });
+    try {
+      const { status, data } = await resetPasswordRequest({
+        resetToken: token,
+        newPassword,
+        confirmPassword,
+      });
 
-    if (result.status === 204) {
-      setMessage('Senha redefinida com sucesso! Você será redirecionado para a página de login.');
-      setShowLoading(false);
+      if (status === 204 || status === 200) {
+        setSuccessMessage(
+          'Senha redefinida com sucesso! Você será redirecionado para o login.'
+        );
+        setShowPopup(true);
+        setTimeout(() => navigate('/login'), 4000);
+      } else {
+        setErrorMessage(data?.message || 'Erro ao redefinir a senha.');
+        setShowPopup(true);
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Erro inesperado.');
       setShowPopup(true);
-      setTimeout(() => navigate('/login'), 5000);
-    } else {
-      setError(result.message);
-      setShowLoading(false);
-      setShowPopup(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <form
-        className="p-6 bg-white rounded shadow-md w-96"
+        className="w-96 p-6 bg-white rounded shadow-md"
         onSubmit={handleSubmit}
       >
         <h2 className="mb-4 text-2xl font-bold text-center">Redefinir Senha</h2>
-        {message && <p className="mb-4 text-green-500">{message}</p>}
-        {error && <p className="mb-4 text-red-500">{error}</p>}
+
         <input
           type="password"
-          placeholder="New Password"
+          placeholder="Nova senha"
           className="w-full p-2 mb-4 border rounded"
           value={newPassword}
           onChange={handlePasswordChange}
           onFocus={() => setShowChecklist(true)}
-          onBlur={() => !password && setShowChecklist(false)}
+          onBlur={() => !newPassword && setShowChecklist(false)}
           required
         />
 
         {showChecklist && (
-          <div className="text-xs mb-4 text-gray-500">
-            <div className={`flex items-center ${lengthValid ? 'text-green-600' : 'text-red-600'}`}>
-              {lengthValid ? '✔' : '✖'} Pelo menos 8 caracteres
-            </div>
-            <div className={`flex items-center ${hasLetter ? 'text-green-600' : 'text-red-600'}`}>
-              {hasLetter ? '✔' : '✖'} Pelo menos uma letra
-            </div>
-            <div className={`flex items-center ${hasNumber ? 'text-green-600' : 'text-red-600'}`}>
-              {hasNumber ? '✔' : '✖'} Pelo menos um número
-            </div>
+          <div className="mb-4 text-xs text-gray-500 space-y-1">
+            <ChecklistItem ok={lengthValid}>Pelo menos 8 caracteres</ChecklistItem>
+            <ChecklistItem ok={hasLetter}>Pelo menos uma letra</ChecklistItem>
+            <ChecklistItem ok={hasNumber}>Pelo menos um número</ChecklistItem>
           </div>
         )}
 
         <input
           type="password"
-          placeholder="Confirmar Senha"
+          placeholder="Confirmar senha"
           className="w-full p-2 mb-4 border rounded"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
+
         <button
           type="submit"
-          className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+          disabled={isLoading}
+          className="w-full p-2 rounded text-white bg-blue-500 hover:bg-blue-600 disabled:opacity-50"
         >
-          Reset Password
+          {isLoading ? 'Enviando…' : 'Redefinir senha'}
         </button>
       </form>
 
       {showPopup && (
         <PopupMessage
+          variant={successMessage ? 'success' : 'error'}
           message={successMessage || errorMessage}
           onClose={() => setShowPopup(false)}
         />
@@ -123,5 +132,11 @@ function ResetPasswordPage() {
     </div>
   );
 }
+
+const ChecklistItem = ({ ok, children }) => (
+  <div className={`flex items-center ${ok ? 'text-green-600' : 'text-red-600'}`}>
+    {ok ? '✔' : '✖'}&nbsp;{children}
+  </div>
+);
 
 export default ResetPasswordPage;
