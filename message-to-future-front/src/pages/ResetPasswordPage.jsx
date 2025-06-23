@@ -9,6 +9,7 @@ function ResetPasswordPage() {
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showChecklist, setShowChecklist] = useState(false); 
   const [errorMessage, setErrorMessage] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -34,6 +35,7 @@ function ResetPasswordPage() {
     e.preventDefault();
     setMessage('');
     setError('');
+    setSuccessMessage('');
 
     if (password !== confirmPassword) {
       setErrorMessage('Senhas não conferem.');
@@ -51,11 +53,15 @@ function ResetPasswordPage() {
 
     const result = await resetPasswordRequest({ resetToken: token, newPassword, confirmPassword });
 
-    if (result.success) {
-      setMessage('Password reset successfully. Redirecting to login...');
+    if (result.status === 204) {
+      setMessage('Senha redefinida com sucesso! Você será redirecionado para a página de login.');
+      setShowLoading(false);
+      setShowPopup(true);
       setTimeout(() => navigate('/login'), 5000);
     } else {
       setError(result.message);
+      setShowLoading(false);
+      setShowPopup(true);
     }
   };
 
@@ -74,6 +80,8 @@ function ResetPasswordPage() {
           className="w-full p-2 mb-4 border rounded"
           value={newPassword}
           onChange={handlePasswordChange}
+          onFocus={() => setShowChecklist(true)}
+          onBlur={() => !password && setShowChecklist(false)}
           required
         />
 
