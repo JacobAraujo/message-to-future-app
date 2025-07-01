@@ -14,11 +14,17 @@ import lombok.*;
 public class UserLoginDto {
 
     @NotBlank
-    @Email(regexp = "^[a-z0-9.+-]+@[a-z0-9.-]+\\.[a-z]{2,}$")
+    @Email()
     private String username;
     @NotBlank
     @Size(min = 8, max = 30)
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8}$")
     private String password;
+
+    public void setUsername(String username) {
+        this.username = username == null
+                ? null
+                : username.trim().toLowerCase();
+    }
 }
 
