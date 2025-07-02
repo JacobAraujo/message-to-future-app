@@ -54,11 +54,15 @@ function MessageViewPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-blue-200 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-blue-300 p-4">
       <Animation narrative={message.narrative} />
-      <div className="bg-white max-w-lg w-full p-6 rounded-lg shadow-lg mt-6">
-        <h1 className="text-2xl font-bold text-center text-blue-600 mb-4">Olá, {message.recipientName}!</h1>
-        <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap">{message.textMessage}</p>
+      <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-2xl mt-8 transition-all duration-300">
+        <h1 className="text-3xl font-extrabold text-center text-blue-700 mb-6">
+          Olá, {message.recipientName}!
+        </h1>
+        <p className="text-lg text-black leading-relaxed whitespace-pre-wrap text-center">
+          {message.messageText}
+        </p>
       </div>
     </div>
   );
