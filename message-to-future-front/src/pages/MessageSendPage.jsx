@@ -28,7 +28,7 @@ function MessageSendPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-800">
+    <div className="flex min-h-screen text-gray-800">
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ${
@@ -37,8 +37,8 @@ function MessageSendPage() {
       >
         <Header />
         <main className="flex-1 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold">Enviar Mensagem</h2>
+          <div className="flex justify-end mb-4">
+            {/* <h2 className="text-2xl font-semibold">Enviar Mensagem</h2> */}
             <span className="text-sm font-medium text-gray-600 bg-blue-100 px-3 py-1 rounded-lg shadow-md">
               Mensagens disponíveis: {limit}
             </span>
