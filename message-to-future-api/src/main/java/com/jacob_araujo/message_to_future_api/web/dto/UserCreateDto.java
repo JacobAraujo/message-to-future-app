@@ -16,8 +16,10 @@ public class UserCreateDto {
     private String username;
 
     @NotBlank
-    @Size(min = 8, max = 30)
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8}$")
+    @Pattern(
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d)\\S{8,30}$",
+            message = "A senha deve ter 8‒30 caracteres, incluir pelo menos uma letra e um número e pode conter símbolos."
+    )
     private String password;
 
     public void setUsername(String username) {
