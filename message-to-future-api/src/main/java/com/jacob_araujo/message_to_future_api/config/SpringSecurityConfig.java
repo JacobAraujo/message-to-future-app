@@ -2,6 +2,8 @@ package com.jacob_araujo.message_to_future_api.config;
 
 import com.jacob_araujo.message_to_future_api.jwt.JwtAuthenticationEntryPoint;
 import com.jacob_araujo.message_to_future_api.jwt.JwtAuthorizationFilter;
+import com.jacob_araujo.message_to_future_api.jwt.JwtUserDetailsService;
+import com.jacob_araujo.message_to_future_api.jwt.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -48,8 +50,8 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public JwtAuthorizationFilter jwtAuthorizationFilter(){
-        return new JwtAuthorizationFilter();
+    public JwtAuthorizationFilter jwtAuthorizationFilter(JwtUserDetailsService detailsService, JwtUtils jwtUtils){
+        return new JwtAuthorizationFilter(detailsService, jwtUtils);
     }
 
     @Bean
@@ -63,7 +65,7 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthorizationFilter jwtAuthorizationFilter) throws Exception {
         return http
                 .csrf(csrf  -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -81,7 +83,7 @@ public class SpringSecurityConfig {
                 ).sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ).addFilterBefore(
-                        jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class
+                        jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class
                 ).exceptionHandling( ex -> ex
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 ).build();

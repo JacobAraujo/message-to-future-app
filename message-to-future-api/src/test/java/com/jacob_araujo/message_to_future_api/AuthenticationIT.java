@@ -6,12 +6,18 @@ import com.jacob_araujo.message_to_future_api.web.dto.UserLoginDto;
 import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
+@ActiveProfiles("test")
 @Sql(scripts = "/sql/users/users-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/sql/users/users-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class AuthenticationIT {
@@ -19,13 +25,16 @@ public class AuthenticationIT {
     @Autowired
     WebTestClient testClient;
 
+    @MockBean
+    private JavaMailSender mailSender;
+
     @Test
     public void authenticate_validCredentials_returnTokenStatus200(){
         JwtToken responseBody = testClient
                 .post()
                 .uri("api/v1/auth")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserLoginDto("ana@email.com", "123456"))
+                .bodyValue(new UserLoginDto("ana@email.com", "1234567A"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(JwtToken.class)
@@ -40,7 +49,7 @@ public class AuthenticationIT {
                 .post()
                 .uri("api/v1/auth")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserLoginDto("invalid@email.com", "000000"))
+                .bodyValue(new UserLoginDto("invalid@email.com", "0000000A"))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorMessage.class)
@@ -53,7 +62,7 @@ public class AuthenticationIT {
                 .post()
                 .uri("api/v1/auth")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserLoginDto("ana@email.com", "000000"))
+                .bodyValue(new UserLoginDto("ana@email.com", "0000000A"))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorMessage.class)
