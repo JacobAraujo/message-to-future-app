@@ -1,21 +1,32 @@
 package com.jacob_araujo.message_to_future_api;
 
+import com.jacob_araujo.message_to_future_api.repository.UserRepository;
+import com.jacob_araujo.message_to_future_api.service.ForgotPasswordRateLimiter;
 import com.jacob_araujo.message_to_future_api.web.dto.UserCreateDto;
 import com.jacob_araujo.message_to_future_api.web.dto.UserPasswordDto;
 import com.jacob_araujo.message_to_future_api.web.dto.UserResponseDto;
 import com.jacob_araujo.message_to_future_api.web.exception.ErrorMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.reset;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -27,8 +38,20 @@ public class UserIT extends JwtIntegrationTestSupport {
     @Autowired
     WebTestClient testClient;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ForgotPasswordRateLimiter forgotPasswordRateLimiter;
+
     @MockBean
     private JavaMailSender mailSender;
+
+    @BeforeEach
+    void setUp() {
+        forgotPasswordRateLimiter.clear();
+        reset(mailSender);
+    }
 
     @Test
     public void createUser_validUsernamePassword_returnUserCreatedStatus201(){
@@ -351,6 +374,147 @@ public class UserIT extends JwtIntegrationTestSupport {
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
         org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    public void forgotPassword_existingAndUnknownUser_returnSameStatusAndEmptyBody() {
+        byte[] existingResponse = testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.10")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ana@email.com"))
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody()
+                .returnResult().getResponseBody();
+
+        byte[] unknownResponse = testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.10")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ghost@email.com"))
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody()
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(existingResponse).isNullOrEmpty();
+        org.assertj.core.api.Assertions.assertThat(unknownResponse).isNullOrEmpty();
+    }
+
+    @Test
+    public void forgotPassword_existingUser_generatesResetTokenAndSendsEmail() {
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.11")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ana@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        org.assertj.core.api.Assertions.assertThat(userRepository.findByUsername("ana@email.com"))
+                .isPresent()
+                .get()
+                .extracting(user -> user.getResetToken())
+                .isNotNull();
+
+        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    public void forgotPassword_unknownUser_doesNotSendEmail() {
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.12")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ghost@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        verifyNoInteractions(mailSender);
+    }
+
+    @Test
+    public void forgotPassword_sameEmailRateLimited_returnStatus429() {
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.13")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ana@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.14")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ana@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.15")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ana@email.com"))
+                .exchange()
+                .expectStatus().isEqualTo(429)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(429);
+    }
+
+    @Test
+    public void forgotPassword_sameIpRateLimited_returnStatus429() {
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.20")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ana@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.20")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ghost1@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.20")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ghost2@email.com"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("api/v1/users/forgot-password")
+                .header("X-Forwarded-For", "198.51.100.20")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "ghost3@email.com"))
+                .exchange()
+                .expectStatus().isEqualTo(429)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(429);
     }
 
     @Test

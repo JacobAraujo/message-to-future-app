@@ -5,6 +5,8 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
+const FORGOT_PASSWORD_GENERIC_MESSAGE = 'Solicitação recebida. Verifique seu e-mail.';
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -62,12 +64,20 @@ export const sendForgotPasswordRequest = async (username) => {
   try {
     const response = await api.post('/users/forgot-password', { username });
 
-    if (!response.status === 204) {
-      throw new Error('Falha ao enviar e-mail de recuperação de senha.');
+    if (response.status !== 204) {
+      throw new Error('Falha ao processar a solicitação.');
     }
-    return { success: true, message: 'Email de recuperação enviado' };
+
+    return { success: true, message: FORGOT_PASSWORD_GENERIC_MESSAGE };
   } catch (error) {
-    return { success: false, message: error.message };
+    if (error.response?.status === 404) {
+      return { success: true, message: FORGOT_PASSWORD_GENERIC_MESSAGE };
+    }
+
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || 'Falha ao processar a solicitação.',
+    };
   }
 };
 

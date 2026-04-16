@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -74,8 +75,8 @@ public class UserController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword (@RequestBody UserUsernameDto dto){
-        userService.forgotPassword(dto.getUsername());
+    public ResponseEntity<Void> forgotPassword (@Valid @RequestBody UserUsernameDto dto, HttpServletRequest request){
+        userService.forgotPassword(dto.getUsername(), resolveClientIp(request));
         return ResponseEntity.noContent().build();
     }
 
@@ -108,6 +109,14 @@ public class UserController {
     public ResponseEntity<UserResponseDto> verifyEmail (@PathVariable String token){
         User user = userService.verifyEmail(token);
         return ResponseEntity.ok(UserMapper.toDto(user));
+    }
+
+    private String resolveClientIp(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 
 }

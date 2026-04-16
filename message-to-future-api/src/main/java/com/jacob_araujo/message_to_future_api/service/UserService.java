@@ -6,24 +6,34 @@ import com.jacob_araujo.message_to_future_api.exception.InvalidPasswordException
 import com.jacob_araujo.message_to_future_api.exception.UsernameUniqueViolationException;
 import com.jacob_araujo.message_to_future_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+    private final ForgotPasswordRateLimiter forgotPasswordRateLimiter;
+
+    @Value("${security.forgot-password.minimum-response-time:250ms}")
+    private Duration forgotPasswordMinimumResponseTime;
 
     @Transactional
     public User save(User user) {
@@ -31,7 +41,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             User userSaved = userRepository.save(user);
 
-            String tokenEmailVerification = java.util.UUID.randomUUID().toString();
+            String tokenEmailVerification = UUID.randomUUID().toString();
             user.setTokenEmailVerification(tokenEmailVerification);
 
             SimpleMailMessage message = new SimpleMailMessage();
@@ -93,28 +103,36 @@ public class UserService {
     }
 
     public String generateAndSavePasswordResetToken(User user) {
-        String token = java.util.UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString();
         user.setResetToken(token);
         user.setTokenExpiration(LocalDateTime.now().plusMinutes(30));
         userRepository.save(user);
         return token;
     }
 
-    public void forgotPassword(String username) {
-        User user = searchByUsername(username);
-        String token = generateAndSavePasswordResetToken(user);
+    public void forgotPassword(String username, String clientIp) {
+        String normalizedUsername = normalizeUsername(username);
+        String normalizedClientIp = normalizeClientIp(clientIp);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(username);
-        message.setSubject("Password Reset Request");
+        forgotPasswordRateLimiter.validateAndRecord(normalizedClientIp, normalizedUsername);
 
-        message.setText("Link to reset your password:\n" +
-                "\n" +
-                "https://message-to-future.site/reset-password/" + token + "\n" +
-                "\n" +
-                "This link is valid for 30 minutes. If you didn’t request this, please ignore this email.");
+        long startedAt = System.nanoTime();
+        try {
+            Optional<User> user = userRepository.findByUsername(normalizedUsername);
 
-        mailSender.send(message);
+            if (user.isPresent()) {
+                try {
+                    sendPasswordResetEmail(user.get());
+                    log.info("Forgot-password processed for email={} ip={}", maskEmail(normalizedUsername), normalizedClientIp);
+                } catch (Exception ex) {
+                    log.error("Forgot-password processing failed for email={} ip={}", maskEmail(normalizedUsername), normalizedClientIp, ex);
+                }
+            } else {
+                log.info("Forgot-password requested for unknown email={} ip={}", maskEmail(normalizedUsername), normalizedClientIp);
+            }
+        } finally {
+            ensureMinimumProcessingTime(startedAt);
+        }
     }
 
     @Transactional
@@ -132,5 +150,59 @@ public class UserService {
             user.setResetToken(null);
             user.setTokenExpiration(null);
         }
+    }
+
+    private void sendPasswordResetEmail(User user) {
+        String token = generateAndSavePasswordResetToken(user);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getUsername());
+        message.setSubject("Password Reset Request");
+        message.setText("Link to reset your password:\n" +
+                "\n" +
+                "https://message-to-future.site/reset-password/" + token + "\n" +
+                "\n" +
+                "This link is valid for 30 minutes. If you did not request this, please ignore this email.");
+
+        mailSender.send(message);
+    }
+
+    private void ensureMinimumProcessingTime(long startedAt) {
+        long elapsedNanos = System.nanoTime() - startedAt;
+        long minimumNanos = forgotPasswordMinimumResponseTime.toNanos();
+        long remainingNanos = minimumNanos - elapsedNanos;
+
+        if (remainingNanos <= 0) {
+            return;
+        }
+
+        try {
+            TimeUnit.NANOSECONDS.sleep(remainingNanos);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            log.warn("Forgot-password delay interrupted");
+        }
+    }
+
+    private String normalizeUsername(String username) {
+        if (username == null) {
+            return "";
+        }
+        return username.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeClientIp(String clientIp) {
+        if (clientIp == null || clientIp.isBlank()) {
+            return "unknown";
+        }
+        return clientIp.trim();
+    }
+
+    private String maskEmail(String username) {
+        int atIndex = username.indexOf('@');
+        if (atIndex <= 1) {
+            return "***";
+        }
+        return username.charAt(0) + "***" + username.substring(atIndex);
     }
 }

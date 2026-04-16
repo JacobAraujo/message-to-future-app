@@ -108,6 +108,16 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.PRECONDITION_FAILED, ex.getMessage()));
     }
 
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorMessage> tooManyRequestsException(RuntimeException ex,
+                                                                HttpServletRequest request) {
+        log.warn("Api Error - {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.TOO_MANY_REQUESTS, ex.getMessage()));
+    }
+
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException ex) {
         return ResponseEntity
