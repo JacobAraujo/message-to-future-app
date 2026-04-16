@@ -22,7 +22,7 @@ import java.util.List;
 @ActiveProfiles("test")
 @Sql(scripts = "/sql/users/users-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/sql/users/users-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class UserIT {
+public class UserIT extends JwtIntegrationTestSupport {
 
     @Autowired
     WebTestClient testClient;

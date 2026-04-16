@@ -1,5 +1,6 @@
 package com.jacob_araujo.message_to_future_api.config;
 
+import com.jacob_araujo.message_to_future_api.support.TestJwtSecrets;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JwtPropertiesTest {
+
+    private static final String TOO_SHORT_SECRET = "x".repeat(12);
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
@@ -36,7 +39,7 @@ class JwtPropertiesTest {
     void shouldFailWhenSecretIsTooShort() {
         contextRunner
                 .withPropertyValues(
-                        "security.jwt.secret=short-secret",
+                        "security.jwt.secret=" + TOO_SHORT_SECRET,
                         "security.jwt.access-token-expiration=30m",
                         "security.jwt.refresh-token-expiration=7d"
                 )
@@ -50,7 +53,7 @@ class JwtPropertiesTest {
     void shouldLoadWhenJwtConfigurationIsValid() {
         contextRunner
                 .withPropertyValues(
-                        "security.jwt.secret=0123456789abcdef0123456789abcdef",
+                        "security.jwt.secret=" + TestJwtSecrets.generate(),
                         "security.jwt.access-token-expiration=30m",
                         "security.jwt.refresh-token-expiration=7d"
                 )

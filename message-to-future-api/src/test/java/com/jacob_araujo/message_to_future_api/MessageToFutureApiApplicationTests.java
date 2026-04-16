@@ -6,7 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class MessageToFutureApiApplicationTests {
+class MessageToFutureApiApplicationTests extends JwtIntegrationTestSupport {
 
 	@Test
 	void contextLoads() {

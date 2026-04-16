@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @ActiveProfiles("test")
 @Sql(scripts = "/sql/messages/messages-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/sql/messages/messages-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class MessageIT {
+public class MessageIT extends JwtIntegrationTestSupport {
 
     @Autowired
     WebTestClient testClient;
